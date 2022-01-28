@@ -1,0 +1,25 @@
+{
+    "questions": [
+        {
+            "answers": [
+                "Fazeel",
+                "Shuja",
+                "Maisam",
+                "Ali"
+            ],
+            "images":"https://media-exp1.licdn.com/dms/image/C5603AQF5X-hBhnzBAw/profile-displayphoto-shrink_200_200/0/1531023834559?e=1645056000&v=beta&t=kEWSf1xeqYIMls133A6bWKXVw7Ux3CwerpWXAIYAP60",
+            "correctIndex": 0
+        },
+        {
+            "answers": [
+                "Fazeel",
+                "Shuja",
+                "Maisam",
+                "Ali"
+            ],
+            "images":"https://scontent.fkhi22-1.fna.fbcdn.net/v/t39.30808-6/245952123_1773621442826259_7618012777033495059_n.jpg?_nc_cat=103&ccb=1-5&_nc_sid=09cbfe&_nc_eui2=AeFx7DU1IzW012oO0zJTgycL98ILaggLId33wgtqCAsh3TDYWNHqKIN6-K7v3sKPrBQQUN8q5EnXpvFAKsbQ4psn&_nc_ohc=YKJAUTp7j3cAX-zJ9dJ&_nc_ht=scontent.fkhi22-1.fna&oh=00_AT9gj5rZfNRb-cTSeguzx6gl7Rb4CkudX87hZN_dkGPHXw&oe=61C2FFA9",
+            "correctIndex": 1
+        }
+ 
+    ]
+}

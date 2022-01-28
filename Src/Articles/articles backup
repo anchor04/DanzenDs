@@ -1,0 +1,297 @@
+import React, { Component } from 'react';
+import { View, Text, PermissionsAndroid, Image, TextInput, SafeAreaView, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import Header  from '../Extras/Header';
+import RNFetchBlob from 'rn-fetch-blob';
+import {Feather} from '../Extras/AllIcons';
+import {getArticles} from '../Extras/AllApis'
+
+
+
+
+let PdfArticle = 'http://www.pdf995.com/samples/pdf.pdf';
+
+
+
+
+
+const RequestAccess = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: "Cool Photo App Camera Permission",
+        message:
+          "Cool Photo App needs access to your camera " +
+          "so you can take awesome pictures.",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK"
+      }
+    );
+    
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log("You can use the camera");
+    } else {
+      console.log("Camera permission denied");
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+
+}
+
+
+
+
+class Articles extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      PdfCover:null,
+      Arraymap:null,
+    };
+  }
+
+  getArticles(){
+    fetch(`${getArticles}`, {
+      method:'GET',
+      headers:{
+      Accept:'application/json'
+    }})
+    .then((res)=>res.json())
+    .then((json)=>{
+
+    //   let {Result} = ;
+      let {Code, Message, Data} = json;
+      // alert(JSON.stringify(json))
+      if(Code == '00'){
+        this.setState({Arraymap:Data});
+        alert(JSON.stringify(this.state.Arraymap))
+      }
+  })
+}
+
+  componentDidMount(){
+    this.getArticles()
+    // alert(JSON.stringify(TimeforLogin[0].seconds))
+PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+
+
+  }
+
+  downloadFiles(PdfArticle){
+    // RNFetchBlob
+    // .config({
+    //   // add this option that makes response data to be stored as a file,
+    //   // this is much more performant.
+    //   fileCache : true,
+    // })
+    // .fetch('GET', `${PdfArticle}`, {
+    //   //some headers ..
+    // })
+    // .then((res) => {
+    //   // the temp file path
+    //   console.log('The file saved to ', res.path())
+    // })
+  
+    RNFetchBlob
+    .config({
+        addAndroidDownloads : {
+            useDownloadManager : true, // <-- this is the only thing required
+            // Optional, override notification setting (default to true)
+            notification : false,
+            // Optional, but recommended since android DownloadManager will fail when
+            // the url does not contains a file extension, by default the mime type will be text/plain
+            mime : 'text/plain',
+            description : 'File downloaded by download manager.'
+        }
+    })
+    .fetch('GET', `${PdfArticle}`)
+    .then((resp) => {
+      alert(JSON.stringify(resp))
+
+      // the path of downloaded file
+      resp.path()
+    })
+  }
+
+  render() {
+    return (
+      <SafeAreaView style={{flex:1, backgroundColor: '#fff',}}>
+      <Header 
+          navigation={this.props.navigation}
+          />
+      <View style={styles.RewardsHeaderView}>
+        <Text style={styles.ArticlesHeaderText}> Articles </Text>
+        </View>
+
+        <View style={styles.SearchbardView}>
+                 <View style={styles.Searchicon}>
+                <Feather name='search' size={18} color="#B6BDC9" />
+                </View>
+                <View style={styles.searchbarText}>
+                 <TextInput style={styles.searchbarText} 
+                    placeholder='type here to Search'
+                    placeholderTextColor='#b3b4b5'
+                    onChangeText={(text)=> this.setState({SearchedBook:text})}
+                    />
+                </View>
+
+             </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.MainContainer}>
+          {this.state.Arraymap != null?
+          this.state.Arraymap.map(val=>{
+        
+            return(
+              <>
+        <View style={styles.NewsView}>
+
+        <View>
+        <View style={styles.ArticlesTextHeaderView}>
+        <Text numberOfLines={2} style={styles.ArticlesTextHeader}> 
+          {val.Title}
+          </Text>
+          </View>
+        <View style={styles.ArticlesTextView}>
+          <Text numberOfLines={3} style={styles.ArticlesText}> 
+          {val.Description}
+          </Text>
+      </View>
+      <View style={{flexDirection:'row'}}>
+      <View style={{flex:7,backgroundColor: 'transparent'}}>
+            </View>
+            {/* {val.Downloadable == 0? */}
+      <View style={{flex:3,backgroundColor: 'green', borderRadius:5, justifyContent: 'center',alignItems: 'center', alignSelf: 'center', alignContent: 'center'}}>
+      <TouchableOpacity onPress={()=> {
+        this.props.navigation.push('PDFViewew',{PdfCover:val.PdfURL})
+      }}>
+      <Text style={{paddingHorizontal:2,alignSelf:'flex-end', color:'#fff', fontFamily:'Poppins-Bold'}}>Read More...</Text>
+      </TouchableOpacity>
+      </View>
+
+      {/* :
+      <View style={{flex:3,backgroundColor: 'red', borderRadius:5, justifyContent: 'center',alignItems: 'center', alignSelf: 'center', alignContent: 'center'}}>
+      <TouchableOpacity onPress={()=> {
+        this.downloadFiles(val.PdfURL)
+      }}>
+      <Text style={{paddingHorizontal:2,alignSelf:'flex-end', color:'#fff', fontFamily:'Poppins-Bold'}}>Download This..</Text>
+      </TouchableOpacity>
+      </View> */}
+
+            {/* } */}
+      </View>
+      </View>
+      </View>
+
+              </>
+            )
+          }):
+          null
+        } 
+      </View>
+      <TouchableOpacity onPress={()=> 
+    RequestAccess()
+  } >
+    <Text>Permission</Text>
+  </TouchableOpacity>
+      </ScrollView>
+      </SafeAreaView>
+    );
+  }
+}
+const styles = StyleSheet.create({
+  RewardsHeaderView:{
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    // backgroundColor: 'pink',
+    height:40,
+    marginLeft:20,
+    marginTop:20
+},
+TopContainer:{
+    margin:10,
+    borderRadius:10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height:100,
+    backgroundColor: '#1e8449',
+},
+Timer:{
+    fontSize:24,
+    fontFamily:'Poppins-Medium',
+    color:'#fff'
+},
+ArticlesHeaderText:{
+    fontFamily:'andlso',
+    fontSize:30,
+    color:'#000'
+},
+MainContainer:{
+    marginTop:20,
+  justifyContent: 'center',
+  alignItems:'center'
+},
+NewsView:{
+  margin:10,
+  flexDirection:'row',
+  // justifyContent: 'flex-start',
+  width:'90%',
+  alignSelf: 'center',
+  borderRadius:10,
+  borderWidth:0.5,
+  borderColor:'#000'
+},
+Image:{
+  height:120, 
+  width:120, 
+  borderRadius:15,
+},
+ArticlesText:{
+  fontFamily:'Poppins-Regular',
+  fontSize:14
+},
+ArticlesTextView:{
+  marginVertical:2,
+  margin:5,
+  width:'90%',
+},
+ArticlesTextHeader:{
+  fontFamily:'Poppins-Bold',
+  fontSize:18
+},
+ArticlesTextHeaderView:{
+  marginVertical:2,
+  margin:5,
+  width:'90%',
+
+},
+SearchbardView:{
+  height:40,
+  width:'90%',
+  backgroundColor: '#edf2f4',
+  borderRadius:20,
+  justifyContent: 'center',
+  alignItems: 'flex-start',
+  alignSelf:'center',
+  marginTop:15,
+  flexDirection:'row'
+},
+Searchicon:{
+  flex:1,
+  marginLeft:5,
+  justifyContent: 'center',
+  alignItems: 'center',
+  alignSelf:'center',
+  alignContent: 'center',
+  backgroundColor: 'transparent',
+  
+},
+searchbarText:{
+  flex:9,
+  backgroundColor: 'transparent',
+},
+})
+
+export default Articles;

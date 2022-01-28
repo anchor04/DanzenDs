@@ -1,0 +1,595 @@
+import React from 'react';
+import {
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    useColorScheme,
+    View,
+    TouchableOpacity,
+    TextInput,
+    Image,
+    ImageBackground,
+    ActivityIndicator,
+    AsyncStorage,
+    AppState
+  } from 'react-native';
+import LottieView from 'lottie-react-native';
+import DropdownScreen from '../Src/DropdowMenu';
+import DropdownCity from  '../Src/DropdownCity';
+import FastImage from 'react-native-fast-image';
+import {connect} from 'react-redux';
+import LinearGradient from 'react-native-linear-gradient';
+import encodeFormData, {SignUpApi, LoginApi, GetCities, GetSpecialities} from './Extras/AllApis';
+import CustomCitiesScreen from './CitiesDropDownFinal';
+import SpecialitiesScreen from './SpecialitiesDropDownFinal';
+import {FontAwesome} from './Extras/AllIcons'
+
+let CitiesList = [];
+let Specialieties = [];
+
+  class login extends React.Component{
+    constructor(props){
+        super(props);
+      this.setModalVisible = this.setModalVisible.bind(this),
+        this.state = {
+          CreateNewAccount:0, 
+          ForgetPassword:0,
+          forgotpinEnable:0,
+          username:'',
+          MobileNumber:"",
+          email:'',
+          password:"",
+          clinicname:'',
+          SelectedCityfromList:'',
+          SelectedSpeciality:'',
+          SelectedSpecialityName:'',
+          SelectedCityName:'',
+          appState:AppState.currentState,
+        };
+    }
+
+     setModalVisible = (visible) => {
+        this.setState({ modalVisible: visible });
+      }
+
+    async LoginforDoctor(phone, pass){
+
+      const Params = {
+        PhoneNumber:phone,
+        Password: pass
+      }
+    const body = encodeFormData(Params);
+    console.log(body)
+
+      fetch(`${LoginApi}`, {
+        method:'POST',
+      headers:{
+        Accept: 'application/json',
+        'Content-Type':'application/x-www-form-urlencoded'
+      },
+      body: body
+    })
+    .then((response) => response.json())
+    .then(async(responseJson) =>  {
+    console.log(body)
+    console.log("ALASora")
+    console.log(responseJson)
+    
+    var responseJson = responseJson;
+    if(responseJson.Code == '00'){
+// alert(JSON.stringify(responseJson.Data.Id))
+let UserId = responseJson.Data.Id;
+      await AsyncStorage.setItem('UserId', JSON.stringify(UserId))
+this.props.navigation.navigate('Dashboard', {User:this.state.username})
+
+    }
+  })
+}
+
+
+ GetCitiesArray = () => {
+  fetch(`${GetCities}`, {
+      method:'GET',
+      headers:{
+      Accept:'application/json'
+    }})
+    .then((res)=>res.json())
+    .then((json)=>{
+
+    //   let {Result} = ;
+      let {Code, Message, Data} = json;
+      if(Code == '00'){
+        //   alert(JSON.stringify(Data[0]._id))
+        if(Data != null){
+        Data.map((val)=>{
+        var object = {label: val.Name, value: val._id}
+        CitiesList.push(object);
+        })
+      }
+      else{
+        alert(Message)
+      }
+}
+})
+}
+
+GetSpecialiesArray = () => {
+  fetch(`${GetSpecialities}`, {
+      method:'GET',
+      headers:{
+      Accept:'application/json'
+    }})
+    .then((res)=>res.json())
+    .then((json)=>{
+
+    //   let {Result} = ;
+      let {Code, Message, Data} = json;
+      if(Code == '00'){
+          // alert(JSON.stringify(Data[0].Name))
+        if(Data != null){
+        Data.map((val)=>{
+        var object = {label: val.Name, value: val._id}
+        Specialieties.push(object);
+        })
+      }
+      else{
+        alert(Message)
+      }
+}
+})
+}
+
+    SignUpForDoctor(){
+      // let fazool = {
+      //  let name = this.state.username;
+      //  let num = this.state.MobileNumber;
+      //  let mail = this.state.email;
+      //  let clinic = this.state.clinicname;
+      // }
+      // console.log(name+num+mail+clinic)
+      const Params = {
+        Name: this.state.username,
+        PhoneNumber:this.state.MobileNumber,
+        Email: this.state.email,
+        ClinicName: this.state.clinicname,
+        CityId: 1,
+        SpecialityId: 1,
+        Password: 'abc'
+      }
+    const body = encodeFormData(Params);
+    console.log(body)
+
+      fetch(`${SignUpApi}`, {
+        method:'POST',
+      headers:{
+        Accept: 'application/json',
+        'Content-Type':'application/x-www-form-urlencoded'
+      },
+      body: body
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+    console.log(body)
+    console.log("ALASora")
+    console.log(responseJson)
+    
+    var responseJson = responseJson;
+    if(responseJson.Code == '00'){
+      // AsyncStorage.setItem('username', {User:this.state.username})
+      this.props.navigation.push('Dashboard', {User:JSON.stringify(this.state.username)});
+    }
+    else{
+      alert(responseJson.Message)
+    }
+      })
+    }
+
+
+async  componentDidMount() {
+      await AsyncStorage.removeItem('UserName')
+      // alert(JSON.stringify(this.props.store))
+        this.appStateSubscription = AppState.addEventListener(
+          "change",
+          nextAppState => {
+            if (this.state.appState.match(/inactive|background/) && nextAppState === "active"){
+              console.log("App has come to the foreground!");
+            }
+            this.setState({ appState: nextAppState });
+            console.log(this.state.appState)
+          }
+        );
+        this.GetCitiesArray();
+        this.GetSpecialiesArray();
+      }
+      // componentWillReceiveProps(){
+      //   if(this.state.SelectedCityfromList !=  this.props.Parent.state.SelectedCityfromList){
+      //   alert(this.props.Parent.state.SelectedCityfromList)
+      //   }
+      // }
+      componentWillUnmount() {
+        this.appStateSubscription.remove();
+      }
+    
+
+    render(){
+        const{
+            gifLoading
+        } = this.state;
+        return(
+            // <SafeAreaView style={{flex:1, backgroundColor:'#2F7433', later wala(2B6932)}}>
+            <SafeAreaView style={{flex:1, backgroundColor:'transparent'}}>
+            {/* <ImageBackground source={require('../Src/images/BG.png')} resizeMode='cover' style={{ justifyContent:'center', flex:1}} > */}
+            <LinearGradient colors={['#27ae60', '#1e8449','#1e8449','#145a32']} style={styles.linearGradient}>
+
+
+            <View style={styles.TopContainer}>
+
+            <View style={styles.HeadingView}>
+                <Image style={{height:120, width:300}} source={require('../Src/images/DanzenDSLogo.png')} resizeMode='contain'/>
+            </View>
+            </View>
+            <View style={styles.MiddleContainer}>
+            <View style={styles.HeadingView}>
+            {/* <LottieView source={require('../Src/images/animation.json')}  style={{height:400, width:300 }}  autoPlay loop/> */}
+            {/* <Image source={require('../Src/images/trans.gif')}  style={{height:450,width:450}} resizeMode="contain"   /> */}
+            {!gifLoading?
+              <FastImage
+              style={{ height:240,width:240}}
+              source={{
+                //   uri: 'https://i.ibb.co/vzYKfg7/trans.gif',
+                  uri: 'https://i.ibb.co/SJ3KYs2/5-min.gif',
+                //   uri:'https://i.ibb.co/dpxGSZh/new.gif',
+                  priority: FastImage.priority.high,
+                  cache: FastImage.cacheControl.immutable
+              }}
+              resizeMode={FastImage.resizeMode.contain}
+              onLoadEnd={()=>this.setState({gifLoading:false})}
+          />:
+          <View
+          style={{marginTop:180}}>
+          <ActivityIndicator color={"#ffffff"} size={"large"} />
+          </View>
+            }
+          
+            </View>
+            </View>
+            {this.state.CreateNewAccount == 0 && this.state.ForgetPassword != 1?
+            <View style={styles.BottomContainer}>
+                <View style={styles.TextinputsView}>
+            <TextInput 
+            placeholder={'Mobile Number'}
+            placeholderTextColor={'#000000'}
+            onChangeText={(text) => this.setState({MobileNumber:text})}
+            style={styles.TextInputs}/>
+            </View>
+            <View style={styles.TextinputsView}>
+            <TextInput 
+            placeholder={'Password'}
+            secureTextEntry 
+            placeholderTextColor={'#000000'}
+            value={this.state.password} 
+            onChangeText={(text) => this.setState({password:text})}
+            style={styles.TextInputs} />
+            </View>
+
+            <View style={{flexDirection:'row'}}>
+            <View style={{flex:1}}>
+
+            </View>
+            <View style={[styles.BottomBtns,{flex:1}]}>
+            
+            <TouchableOpacity onPress={()=> {this.setState({ForgetPassword:1})}} style={styles.ForgotpassBtnsContainer}>
+              <View>
+                <Text allowFontScaling={false} style={styles.ForgotpassBtnsText}>
+                  Forgot Password?
+                </Text>
+                <View style={styles.underline}/>
+                </View>
+                </TouchableOpacity>
+                </View>
+
+                </View>
+            <View style={[styles.BottomBtns, {flexDirection:'row',flex:1, justifyContent: 'flex-end', alignItems:'flex-end', margin:15}]}>
+
+            <View>
+            <TouchableOpacity onPress={()=> this.setState({CreateNewAccount:1})} style={[styles.BtnsContainer,{flex:9,backgroundColor: "green", justifyContent: 'flex-start', alignItems:'flex-start'}]}>
+                <Text allowFontScaling={false} style={styles.BtnsText}>
+                  Sign Up
+                </Text>
+                </TouchableOpacity>
+                </View>
+
+            <TouchableOpacity onPress={()=> this.LoginforDoctor(this.state.MobileNumber, this.state.password)} 
+            style={[styles.BtnsContainer,{height:80, width:80, borderRadius:50, justifyContent: 'center',}]}>
+            <FontAwesome name='arrow-right' size={24} color={'#fff'} style={{justifyContent:'center', alignSelf:'center'}} />
+            {/* <Text allowFontScaling={false} style={styles.BtnsText}>
+              SIGN IN
+            </Text> */}
+            </TouchableOpacity>
+            </View>
+        
+          
+
+                {/* <TouchableOpacity onPress={()=> {
+                  this.setState({ModalEnable:1})
+}} style={styles.ForgotpassBtnsContainer}>
+                <Text allowFontScaling={false} style={styles.ForgotpassBtnsText}>
+                  Modal Enable
+                </Text>
+                </TouchableOpacity> */}
+            </View>
+
+
+            :
+            this.state.ForgetPassword == 1?
+            <View style={styles.BottomContainer}>
+    
+    <View style={styles.TextinputsView}>
+        <TextInput placeholder={'Enter Email Address'} 
+            placeholderTextColor={'#000000'}
+            style={styles.TextInputs}
+            onTextInput={(text)=> this.setState({email:text})} />
+        </View>
+
+        {this.state.forgotpinEnable == 1?
+    <View style={styles.TextinputsView}>
+    <TextInput 
+    secureTextEntry 
+    placeholder={'Enter Recovery Code'} 
+    placeholderTextColor={'#000000'}
+    value={this.state.password} 
+    onChangeText={(text) => this.setState({password:text})}
+    style={styles.TextInputs} />
+    </View>
+            :
+            null
+    }
+            
+        <View style={[styles.BottomBtns,{marginTop:20, padding:10}]}>
+          
+            <TouchableOpacity onPress={()=> {this.state.email != ''? this.setState({forgotpinEnable:1}): alert('Enter Valid Email Address')}} style={styles.BtnsContainer}>
+           
+            {this.state.forgotpinEnable == 1?
+            <Text allowFontScaling={false} style={styles.BtnsText}>
+             Submit
+            </Text>
+            :
+            <Text allowFontScaling={false} style={styles.BtnsText}>
+            Continue
+           </Text>
+    }
+            </TouchableOpacity>
+            
+            </View>
+            </View>
+            :
+            this.state.CreateNewAccount == 1?
+            <View style={styles.BottomContainer}>
+            <View style={styles.TextinputsView}>
+            <TextInput placeholder={'Enter Name'}
+            placeholderTextColor={'#000000'}
+            onChangeText={(text)=> {this.setState({username:text})}}
+            style={styles.TextInputs}/>
+            </View>
+
+            <View style={styles.TextinputsView}>
+        <TextInput placeholder={'Enter Mobile Number'} 
+            placeholderTextColor={'#000000'}
+            onChangeText={(text)=> {this.setState({MobileNumber:text})}}
+            style={styles.TextInputs}/>
+        </View>
+        <View style={styles.TextinputsView}>
+        <TextInput placeholder={'Enter Email Address'} 
+            placeholderTextColor={'#000000'}
+            onChangeText={(text)=> {this.setState({email:text})}}
+            style={styles.TextInputs} />
+        </View>
+
+        <View style={styles.BottomBtns}>
+        <TouchableOpacity onPress={()=> this.setState({CreateNewAccount:2})} style={styles.BtnsContainer}>
+        <Text allowFontScaling={false} style={styles.BtnsText}>
+          NEXT
+        </Text>
+        </TouchableOpacity>
+        </View>
+        </View>
+        :
+        this.state.CreateNewAccount == 2?
+        <View style={styles.BottomContainer}>
+        <View style={styles.TextinputsView}>
+        <TextInput placeholder={'Enter Clinic Name'} value={this.state.clinicname}
+            placeholderTextColor={'#000000'}
+            onChangeText={(text)=> {this.setState({clinicname:text})}}
+            style={styles.TextInputs}/>
+        </View>
+        
+        <View style={styles.DropDownContainer}>
+            <TouchableOpacity onPress={()=> this.setState({ModalEnable:1})} style={styles.TextinputsView}>
+            {this.state.SelectedCityName == ''?
+        
+        <Text allowFontScaling={false} style={[styles.TextInputs,{width:'100%', height:50}]}> Select Your City</Text>
+        :
+        <Text allowFontScaling={false} style={[styles.TextInputs,{width:'100%', height:50}]}> {this.state.SelectedCityName}</Text>
+      }
+        </TouchableOpacity>
+       
+    </View>
+
+        <View style={styles.DropDownContainer}>
+        
+        <TouchableOpacity onPress={()=> this.setState({SpecialitiesModal:1})} style={styles.TextinputsView}>
+        {this.state.SelectedSpecialityName == ''?
+       
+        <Text allowFontScaling={false} style={[styles.TextInputs,{width:'100%', height:50}]}> Select Your Speciality</Text>
+        :
+        <Text allowFontScaling={false} style={[styles.TextInputs,{width:'100%', height:50}]}> {this.state.SelectedSpecialityName}</Text>
+      }
+        </TouchableOpacity>
+    </View>
+
+    <View style={styles.BottomBtns}>
+    <TouchableOpacity onPress={()=> {
+        this.SignUpForDoctor();
+    }} style={styles.BtnsContainer}>
+    <Text allowFontScaling={false} style={styles.BtnsText}>
+      SIGN UP
+    </Text>
+    </TouchableOpacity>
+    </View>
+    </View>
+        :
+    
+      
+        null
+    }
+
+  {
+  }
+
+  {this.state.ModalEnable == 1?
+                  <CustomCitiesScreen
+                  Parent={this}
+                  //  modalvisbile={true}
+                   data = {CitiesList}
+                   modalVisible={this.state.ModalEnable}  />
+                :
+                null
+                }
+
+        {this.state.SpecialitiesModal == 1?
+        <SpecialitiesScreen 
+        Parent={this}
+        //  modalvisbile={true}
+         data = {Specialieties}
+         modalVisible={this.state.SpecialitiesModal}  />
+      :
+      null
+      }
+      {/* </ImageBackground> */}
+    </LinearGradient>
+            </SafeAreaView>
+        )}
+    }
+
+    function mapStateToProps(state){
+      return{
+        store: state
+      }
+    }
+      
+    export default connect(mapStateToProps)(login);
+
+        const styles = StyleSheet.create({
+        BtnsContainer: {
+              width:'90%', 
+              backgroundColor:'#18C009',
+              borderRadius:5,
+            },
+        ForgotpassBtnsContainer:{
+          width:'90%', 
+          backgroundColor:'transparent',
+          alignItems:'flex-end',
+          alignSelf: 'center',
+          justifyContent: 'flex-end',
+          alignContent: 'flex-end',
+        },
+        SinginFieldsTextView:{
+          alignItems:'flex-start', 
+          width:'90%', 
+          marginTop:20},
+        BtnsText:{
+        fontSize:16,
+        justifyContent:'center',
+        alignSelf:"center",
+        padding:5,
+        color:'#fff',
+        fontFamily:'Poppins-Medium'
+    },
+        ForgotpassBtnsText:{
+          fontSize:12,
+            justifyContent:'center',
+            alignSelf:"center",
+            // padding:5,
+            color:'blue',
+            fontFamily:'Poppins-SemiBold'
+        },
+        TextinputsView:{
+            justifyContent:'center',
+            alignItems:'center',
+            margin:5,
+            marginBottom:1,
+            padding:5,
+        },
+        TextInputs:{
+            backgroundColor:'#fff', 
+            width:'90%', 
+            justifyContent:'center', 
+            alignItems:'center',
+            borderBottomWidth:0.2,
+            borderBottomColor:'#000',
+            fontFamily:'Poppins-Medium',
+            color:'#000000',
+            
+        },
+        HeadingView:{
+        justifyContent:'center',
+        alignItems:'center'
+        },
+        HeadingName:{
+            fontFamily:'Righteous-Regular',
+            fontSize:40,
+        },
+        TopContainer:{
+            flex:0.5,
+            zIndex:99
+        },   
+        MiddleContainer:{
+            flex:2.5,
+        },
+        BottomContainer:{
+            flex:4,
+            backgroundColor: "#fff",
+            borderTopLeftRadius:50,
+            borderTopRightRadius:50
+        },
+        linearGradient: {
+          flex: 1,
+        },
+        SinginText:{
+          fontFamily:'Poppins-Regular',
+          fontSize:14,
+          color:'#000'
+        },
+        BottomBtns:{
+            // width:'100%',
+            margin:5,
+            justifyContent:'center',
+            alignItems:'center',
+            shadowColor: '#000000',
+            shadowOffset: {
+                width: 0,
+                height: 7,
+            },
+            shadowOpacity: 0.43,
+            shadowRadius: 9.51,
+            
+            elevation: 15,
+            
+        },
+        DropDownContainer:{
+            width:'90%',
+            // justifyContent:'center',
+            // alignItems:'center',
+            alignSelf:'center',
+            borderRadius:10,
+        },
+        underline:{
+          alignSelf:'stretch',
+          borderBottomWidth:0.2,
+          borderBottomColor:'blue',
+          marginTop:-1.5,
+        }
+          });
+          

@@ -1,17 +1,42 @@
-import React, {useState} from 'react';
-    import {StyleSheet, View, Text, Image} from 'react-native';
+import React, {useState, useEffect} from 'react';
+    import {StyleSheet, View, Text, Image, Modal} from 'react-native';
     import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
+import {GetCities} from '../Src/Extras/AllApis';
+
 
     const data = [
-        {label: 'Karachi', value: '1'},
-        {label: 'Lahore', value: '2'},
-        {label: 'Hyderabad', value: '3'},
-        {label: 'Islamabad', value: '4'},
-        {label: 'Quetta', value: '5'},
-        {label: 'Peshawar', value: '6'},
-        {label: 'Multan', value: '7'},
-        {label: 'Sukkhar', value: '8'},
+        // {label: 'Karachi', value: '1'},
+        // {label: 'Lahore', value: '2'},
+        // {label: 'Hyderabad', value: '3'},
+        // {label: 'Islamabad', value: '4'},
+        // {label: 'Quetta', value: '5'},
+        // {label: 'Peshawar', value: '6'},
+        // {label: 'Multan', value: '7'},
+        // {label: 'Sukkhar', value: '8'},
     ];
+
+    const GetCitiesArray = () => {
+      fetch(`${GetCities}`, {
+          method:'GET',
+          headers:{
+          Accept:'application/json'
+        }})
+        .then((res)=>res.json())
+        .then((json)=>{
+
+        //   let {Result} = ;
+          let {Code, Message, Data} = json;
+          if(Code == '00'){
+            //   alert(JSON.stringify(Data[0]._id))
+            if(Data != null){
+            Data.map((val)=>{
+            var object = {label: val.Name, value: val._id}
+            data.push(object);
+            })
+          }
+    }
+  })
+}
 
     const DropdownCity = _props => {
         const [dropdown, setDropdown] = useState(null);
@@ -25,7 +50,10 @@ import React, {useState} from 'react';
             </View>
             );
         };
-
+        useEffect(() => {
+            // Update the document title using the browser API
+            GetCitiesArray();
+          });
         return (
             <View style={styles.container}>
                 <Dropdown
@@ -34,16 +62,18 @@ import React, {useState} from 'react';
                     data={data}
                     search
                     searchPlaceholder="Search"
+                    inputSearchStyle={{color:'#000', fontFamily:"Poppins-Bold"}}
                     labelField="label"
                     valueField="value"
                     label="Dropdown"
-                    placeholder="Select item"
-                    placeholderStyle={{fontFamily:'Poppins-SemiBold', color:'#000'}}
-                selectedTextStyle={{fontFamily:'Poppins-SemiBold', color:'#000'}}
+                    placeholder="Select City"
+                    placeholderStyle={{fontFamily:'Poppins-SemiBold', color:'#000000'}}
+                selectedTextStyle={{fontFamily:'Poppins-SemiBold', color:'#000000'}}
                     value={dropdown}
                     onChange={item => {
                     setDropdown(item.value);
-                        console.log('selected', item);
+                        // console.log('selected', item);
+                        alert(JSON.stringify(item.value))
                     }}
                     // renderLeftIcon={() => (
                     //     <Image style={styles.icon} source={require('./assets/account.png')} />
@@ -71,6 +101,7 @@ import React, {useState} from 'react';
         dropdown: {
             backgroundColor: 'white',
             borderBottomColor: 'gray',
+            color:'#000000'
             // borderBottomWidth: 0.5,
             // marginTop: 5,
         },
@@ -89,9 +120,10 @@ import React, {useState} from 'react';
         textItem: {
             flex: 1,
             fontSize: 16,
+            color:'#000000'
         },
         shadow: {
-            shadowColor: '#000',
+            shadowColor: '#000000',
             shadowOffset: {
             width: 0,
             height: 1,

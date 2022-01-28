@@ -1,0 +1,25 @@
+{
+    "questions": [
+        {
+            "question": "Everything in React is a __________",
+            "answers": [
+                "Module",
+                "Component",
+                "Hooks",
+                "Template"
+            ],
+            "correctIndex": 1
+        },
+        {
+            "question": "What of the following is used in React.js to increase performance?",
+            "answers": [
+                "Original DOM",
+                "Virtual DOM",
+                "Both A & B",
+                "None Of The Above"
+            ],
+            "correctIndex": 1
+        }
+ 
+    ]
+}

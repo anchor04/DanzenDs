@@ -1,0 +1,216 @@
+import React, { Component } from 'react';
+import { View, Text, SafeAreaView, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
+import Header from './Extras/Header';
+import Pie from 'react-native-pie';
+import {FontAwesome5,FontAwesome} from './Extras/AllIcons'
+import { ScrollView } from 'react-native';
+import {GetTimeSpent} from './Extras/AllApis';
+
+ let TimeScreenData = [
+     {color:"#C70039", ScreenName:'Home', IconName:'home',  percentage: 20, timeOntheScreen:'44'},
+     {color:"#44CD40", ScreenName:'Games', IconName:'gamepad', percentage: 40, timeOntheScreen:'60'},
+     {color:"#FB6B53", ScreenName:'Books', IconName:'book', percentage: 10, timeOntheScreen:'20'},
+     {color:"#1DCD9D", ScreenName:'News', IconName:'newspaper-o', percentage: 7, timeOntheScreen:'23'},
+     {color:"#ce62d6", ScreenName:'Articles', IconName:'file-text-o', percentage: 8, timeOntheScreen:'11'},
+     {color:"#f4ea29", ScreenName:'Others', IconName:'gear', percentage: 15, timeOntheScreen:'10'},
+ ]
+
+class TimerScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+        totalTime:'0'
+    };
+  }
+
+  GetTimeSpent(UserId){
+    fetch(`${GetTimeSpent}?StartDate=2021-12-01&EndDate=2021-12-29&UserId=${UserId}`,{
+      method:'GET',
+          headers:{
+          Accept:'application/json'
+        }})
+        .then((res)=>res.json())
+        .then((json)=>{
+          let { Code, Result}  = json
+          if(Code == '00'){
+      alert(JSON.stringify(Result.WithPercentage))
+      let totaltime2dec = (Result.TotalTime).toString()
+      // alert(totaltime2dec.substr(0, 5))
+            this.setState({totalTime:totaltime2dec})
+            let abc = Result.WithPercentage
+            this.setState({abc})
+          }
+          else
+          {
+            alert('asad')
+          }
+
+    })
+  }
+
+  async componentDidMount(){
+    let UserId = await AsyncStorage.getItem('UserId')
+    // alert(UserId)
+    this.GetTimeSpent(UserId)
+  }
+  render() {
+    return (
+        <SafeAreaView style={{flex:1, backgroundColor: "#fff",}}>
+        <Header 
+        navigation={this.props.navigation}/>
+              <View style={styles.GamesHeaderView}>
+          <Text style={styles.GamesHeaderText}> Screen Times </Text>
+          </View>
+        <ScrollView>
+
+      <View style={styles.TopContainer}>
+          <View style={{margin:5, backgroundColor: 'transparent', }}>
+          <Pie
+              radius={80}
+              innerRadius={65}
+            sections={typeof this.state.abc !='undefined'? this.state.abc : null}
+              dividerSize={1}
+              strokeCap={'round'}
+            />
+             <View style={styles.gauge}>
+                <Text style={styles.gaugeText}>
+                  {this.state.totalTime.substr(0,5)} mins
+                </Text>
+              </View>
+      </View>
+   
+        <View style={{ }}>
+            {typeof this.state.abc !='undefined'?
+             this.state.abc.map((val)=>{
+          return(
+            <View style={{borderRadius:10, backgroundColor:val.color , margin:4,opacity:0.5,height:25,justifyContent: 'center', alignSelf: 'flex-end', }}>
+            <View style={{flex:1, flexDirection:'row', padding:5, paddingVertical:2 }}>
+                <FontAwesome name='eercast' size={14} color='#000' />
+                <Text style={{color:'#000'}}>{val.ScreenName}</Text>
+            </View>
+            </View>
+            )})
+            :
+            null
+          }
+      </View>
+      
+      
+      </View>
+      <View style={styles.BottomContainer}>
+
+      {typeof this.state.abc !='undefined'?
+      this.state.abc.map((val)=>{
+        console.log(val)
+        console.log('Hellozxncjh')
+          return (
+      <View style={styles.tabsView}>
+           <View style={styles.TabsIconsView}>
+              <View style={[styles.TabsIcons,{backgroundColor:val.color}]}>
+              <FontAwesome name={val.IconName} size={20} color='#fff'/>
+              </View>
+           </View>
+           
+           <View style={styles.tabsbar}>
+               <View style={{flex:2}}>
+              <Text allowFontScaling={false} style={styles.tabsbarText}>
+                  {val.ScreenName}
+              </Text>
+              </View>
+              <View style={{flex:1}}>
+
+              <Text allowFontScaling={false} style={[styles.tabsbarText,{fontSize:18}]}>
+                      {val.TimeInMins} mins
+                  </Text>
+                  </View>
+           </View>
+      
+      </View>
+       ) })
+    :
+    null
+          }
+
+
+      </View>
+      </ScrollView>
+
+      </SafeAreaView>
+    )
+  }
+}
+const styles = StyleSheet.create({
+    TopContainer:{
+        flexDirection:'row',
+        flex:1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: "transparent",
+        margin:10,
+        padding: 20,
+    },
+    BottomContainer:{
+        flex:1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    tabsView:{
+        flexDirection:'row',
+        backgroundColor: 'transparent',
+    },
+    TabsIconsView:{
+        height:75,
+        flex:3,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    TabsIcons:{
+        height:60,
+        width:60,
+        backgroundColor: '#ce62d6',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius:20
+    },
+    tabsbar:{
+        flex:7,
+        backgroundColor: 'transparent',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        // alignSelf:'flex-start',
+        flexDirection:'row'
+    },
+    tabsbarText:{
+        fontFamily:'Beatles',
+        fontSize:24
+    },
+    GamesHeaderView:{
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        // backgroundColor: 'pink',
+        height:40,
+        marginLeft:20,
+        marginTop:20
+    },
+    GamesHeaderText:{
+        fontFamily:'andlso',
+        fontSize:30,
+        color:'#000'
+    },
+    gauge: {
+        position: 'absolute',
+        width: 160,
+        height: 160,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
+      },
+      gaugeText: {
+        backgroundColor: 'transparent',
+        color: '#000',
+        fontSize: 22,
+        fontFamily:'Beatles',
+        
+      },
+})
+export default TimerScreen;

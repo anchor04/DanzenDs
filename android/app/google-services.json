@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "22887441323",
+    "project_id": "danzends-248f8",
+    "storage_bucket": "danzends-248f8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:22887441323:android:31c82eeeaac71c633328ee",
+        "android_client_info": {
+          "package_name": "com.danzends"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "22887441323-nuki4c297cqe7e9ud3dodd3jar23dc24.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLLQkyWhYFSabLgnGzqYwodHJOAt0pqhk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "22887441323-nuki4c297cqe7e9ud3dodd3jar23dc24.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

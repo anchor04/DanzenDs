@@ -1,0 +1,380 @@
+import React from 'react';
+import {
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    useColorScheme,
+    View,
+    TouchableOpacity,
+    // Modal,
+    Image,
+    AsyncStorage,
+    Dimensions
+  } from 'react-native';
+import Modal from "react-native-modal";
+  import {AntDesign, Entypo} from './Extras/AllIcons';
+  import VideoPlayer from 'react-native-video-player';
+  import YoutubePlayer from "react-native-youtube-iframe";
+import FastImage from 'react-native-fast-image'
+import { MyCarousel } from './Carousel';
+const { height, width } = Dimensions.get('window');
+
+// let defaultgreen = '#7fe076';
+// let defaultgreen = '#58D68D';
+let defaultgreen = '#30A453';
+
+//   const togglePlaying = useCallback(() => {
+//     isPlaying((prev) => !prev);
+//   }, []);
+
+
+let IconsList = [
+    {Id:0,
+    Text:'Books',
+    Image:require('../Src/images/Dashboardicons/games.png'),
+    navigate: 'Reward'
+},
+{Id:0,
+    Text:'Books',
+    Image: require('../Src/images/Dashboardicons/games.png'),
+    navigate: 'Reward'
+}
+]
+
+
+
+  export default class dashboard extends React.Component{
+
+    
+    constructor(props){
+        super(props)
+            this.state = {
+                username:null,
+                timecount:0,
+                VideoModalVisible:false
+            };
+        }
+
+        renderIcons(IconsList){
+            var IconsJSX =  IconsList.map((item)=>{
+                   return(
+                   <View
+                   style={styles.Card}>
+                   <TouchableOpacity
+                   onPress={()=> this.props.navigation.navigate(item.navigate)}
+                   style={styles.type}
+                   >
+                       <Image source={item.Image} style={styles.ImageContainer}/>
+                   </TouchableOpacity>
+                   <TouchableOpacity
+                   >
+                   <Text
+                   onPress={()=> this.props.navigation.navigate('Dashboard', {RideTypeIdFromMainScreen: item.Id, CurrentLocation:this.state.CurrentLocation, CountriesList: this.state.CountriesList})}
+                   allowFontScaling={false}
+                   style={styles.IconText} >
+                       {item.Text}
+                   </Text>
+                   </TouchableOpacity>
+                   </View>
+                   )
+             });
+             this.setState({IconsJSX})
+         }
+
+counterOnscreen(){
+ var hours = new Date().getHours();
+ var minutes = new Date().getMinutes();
+ var seconds = new Date().getSeconds();
+ console.log('Checked in at '+hours+':'+minutes+':'+seconds)
+}
+
+counterOffscreen(){
+    var hours = new Date().getHours();
+    var minutes = new Date().getMinutes();
+    var seconds = new Date().getSeconds();
+    console.log('Checked out at '+hours+':'+minutes+':'+seconds)
+   }
+    
+
+async componentDidMount(){
+    
+
+    let UserId = await AsyncStorage.getItem('UserId');
+    this.setState({UserId});
+    
+    // this.setState({username})
+    // // let abc = JSON.parse(username)
+    this.counterOnscreen()
+    const username = await AsyncStorage.getItem('UserName', null);
+    this.setState({
+        username
+    })
+
+    alert(JSON.stringify(IconsList[0].Image))
+
+    this.renderIcons(IconsList);
+}
+
+componentWillUnmount(){
+    this.counterOffscreen();
+}
+
+
+    render(){
+        const {
+            timecount,
+            VideoModalVisible
+        } = this.state;
+
+        return(
+            <>
+            <SafeAreaView style={{flex:1, backgroundColor:'#fff'}}>
+                <StatusBar />       
+            {/* <ImageBackground source={require('../Src/images/BG.png')} resizeMode='cover' style={{ flex:1}} > */}
+                       <View style={styles.Header}>
+                           
+                           <View style={styles.BlackBox}>
+                               <TouchableOpacity onPress={()=> 
+                                this.props.navigation.openDrawer()}>
+                        <Entypo name="menu" size={30} color={'#fff'} />
+                        </TouchableOpacity>
+                       </View>
+                       </View>
+                       
+                       <View style={styles.VideoContainer}>
+                 
+
+                        {/* <YoutubePlayer
+                        height={200}
+                        videoId={"aAaDyHjSPYc"}
+                        style={{borderRadius:20, padding:10, margin:20}}
+                         /> */}
+                         <MyCarousel
+                         Parent={this}
+                         />
+                        </View>
+                        
+                    {/* <View style={styles.separator} /> */}
+                        <View style={styles.BottomMainCardView}>
+                        <View style={{...StyleSheet.absoluteFillObject, backgroundColor:defaultgreen}}/>
+                 <View style={{flex:1, borderTopLeftRadius:70, backgroundColor: "#fff"}}>
+                    <View>
+                        <Text>
+                        {/* {timecount} */}
+                        </Text>
+                    </View>
+                 <View style={styles.BottomCard}>
+
+                        {/* <View style={{flexDirection:'row', justifyContent:'center', alignContent:'center', backgroundColor: 'red',}}>
+                            <View style={[styles.Card,{backgroundColor:"#FFF4E1"}]}>
+                                <View style={styles.ImageContainer}>
+                            <TouchableOpacity onPress={()=> {}}>
+                            <Image style={{height:50, width:50}} source={require('../Src/images/Dashboardicons/books.png')} resizeMode='contain'/>
+                            </TouchableOpacity>
+                            <Text style={styles.IconText}>
+                               Books
+                            </Text>
+                            </View>
+                            </View>
+
+                            <View style={[styles.Card,{backgroundColor:"#D8EAEA"}]}>
+                            <View style={styles.ImageContainer}>
+                            <TouchableOpacity onPress={()=> {this.props.navigation.push('NewsScreen', {UserId:this.state.UserId})}}>
+                            <Image style={{height:50, width:50}} source={require('../Src/images/Dashboardicons/news.png')} resizeMode='contain'/>
+                            </TouchableOpacity>
+                            <Text style={styles.IconText}>
+                               News
+                            </Text>
+                            </View>
+                            </View>
+
+
+                            <View style={[styles.Card,{backgroundColor:"#FFF4FD"}]}>
+                            <View style={styles.ImageContainer}>
+                                <TouchableOpacity onPress={()=> this.props.navigation.navigate('gamesList', {Header:'Games'})}>
+                            <Image style={{height:50, width:50}} source={require('../Src/images/Dashboardicons/games.png')} resizeMode='contain'/>
+                            </TouchableOpacity>
+                            <Text style={styles.IconText}>
+                                Games
+                            </Text>
+                            </View>
+                            </View>
+                            </View> */}
+
+                            {/* <View style={{flexDirection:'row', justifyContent:'center', alignContent:'center', backgroundColor: 'green',}}>
+
+                            <View style={[styles.Card,{backgroundColor:"#FFF4FD"}]}>
+                            <View style={styles.ImageContainer}>
+                            <TouchableOpacity onPress={()=> alert('1')}>
+                            <Image style={{height:50, width:50}} source={require('../Src/images/Dashboardicons/quiz.png')} resizeMode='contain'/>
+                            </TouchableOpacity>
+                            <Text style={styles.IconText}>
+                                Quiz
+                            </Text>
+                            </View>
+                            </View>
+
+
+                            <View style={[styles.Card,{backgroundColor:"#D8EAEA"}]}>
+                            <View style={styles.ImageContainer}>
+                            <TouchableOpacity onPress={()=> {}}>
+                            <Image style={{height:50, width:50}} source={require('../Src/images/Dashboardicons/articles.png')} resizeMode='contain'/>
+                            </TouchableOpacity>
+                            <Text style={styles.IconText}>
+                                Articles
+                            </Text>
+                            </View>
+                            </View>
+
+                            <View style={[styles.Card,{backgroundColor:"#FFF4E1"}]}>
+                            <View style={styles.ImageContainer}>
+                            <TouchableOpacity onPress={()=> {alert(1),this.props.navigation.navigate('RewardsScreen')}}>
+                            <Image style={{height:50, width:50}} source={require('../Src/images/Dashboardicons/reward.png')} resizeMode='contain'/>
+                            </TouchableOpacity>
+                            <Text style={styles.IconText}>
+                                Rewards
+                            </Text>
+                            </View>
+                            </View>
+                            </View> */}
+                            <View horizontal>
+                            {this.state.IconsJSX}
+                            </View>
+                        </View> 
+                            </View>
+                        </View>
+
+              
+
+                        {/* </ImageBackground> */}
+            </SafeAreaView>
+            <View style={styles.VideoModalView}>
+                        {VideoModalVisible == true?
+                        <Modal 
+                        animationIn={"slideInUp"}
+                        animationOut={'slideInDown'}
+                        transparent={true}
+                        isVisible={VideoModalVisible == true? true : false}
+                        onBackdropPress={()=> this.setState({VideoModalVisible:false})}
+                        >
+                            {/* <View style={{flex:1, backgroundColor:'green'}}></View> */}
+                            <View style={styles.VideoView}>
+                                {/* <View style={styles.CrossBtn}>
+                                <TouchableOpacity style={styles.CrossBtn} onPress={()=> this.setState({VideoModalVisible:false})}>
+                                <AntDesign name='closecircle' size={40} color="#fff" />
+                                </TouchableOpacity>
+                                </View> */}
+                        <YoutubePlayer
+                height={200}
+                 videoId={"aAaDyHjSPYc"}
+                  /> 
+                  </View>
+                  </Modal> 
+                  :
+                  null
+                        }
+                  </View>
+            </>
+            
+            )}
+        }
+
+    const styles = StyleSheet.create({
+        Header:{
+            backgroundColor:defaultgreen,
+            height:50,
+            padding:10,
+            justifyContent:'center'
+        },
+        Card:{
+            height:80,
+            width:80, 
+            // backgroundColor:'#c8c8c8',
+            margin:10,
+            // padding:10,
+            borderRadius:10
+        },
+        CrossBtn:{
+            // backgroundColor:'red', 
+            justifyContent: 'center',
+            alignItems:'center',
+            marginBottom:40
+        },
+        VideoModalView:{
+            flex: 1,
+            // backgroundColor: "red",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "transparent",
+            borderRadius: 20,
+            // alignItems: "center",
+        },
+        VideoView:{
+
+            backgroundColor:'transparent', 
+
+            // justifyContent: 'center',
+        },
+        IconText:{
+            fontFamily:'Atlanta-Book',
+            fontSize:14,
+            color:"#000",
+            // fontWeight:'400'
+        },
+        ImageContainer:{
+            height:"100%",
+            width:"100%",
+            justifyContent:'center',
+            alignItems:'center'
+        },
+        BlackBox:{
+            justifyContent:'center',
+            alignItems:'center',
+            height:40, 
+            width:40, 
+            backgroundColor:'transparent',
+            borderRadius:4
+        },
+        VideoContainer:{
+            height:0.30*height,
+            backgroundColor:defaultgreen,
+            borderBottomRightRadius:70
+        },
+        BottomMainCardView:{
+            height:0.70*height,
+            backgroundColor:'#000',
+            borderTopLeftRadius:70
+            // borderTopColor:'#000000',
+            // borderTopWidth:0.1,
+        },
+        BottomCard:{
+            // borderTopLeftRadius:15,
+            // borderTopRightRadius:15,
+            // height:'50%',
+            // backgroundColor:'#fff',
+            borderBottomColor:'#2B2E37'
+        },
+        separator:{
+            height:1, 
+            borderWidth:0.1, 
+            backgroundColor:'#000000', 
+            marginTop:2
+        },
+        NameBar:{
+            justifyContent:'center',
+            alignItems:'center',
+            height:40,
+            margin:10,
+            backgroundColor:'#2B2E37',
+            width:'80%',
+            alignSelf:'center',
+            borderRadius:50,
+        },
+        NameText:{
+            fontFamily:'Poppins-Regular',
+            fontSize:15,
+            color:'#fff'
+        }
+    })

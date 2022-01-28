@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
     import {StyleSheet, View, Text, Image} from 'react-native';
     import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
+import { color } from 'react-native-reanimated';
     import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
 
     const data = [
@@ -31,15 +32,18 @@ import React, {useState} from 'react';
             <View style={styles.container}>
                 <Dropdown
                     style={styles.dropdown}
-                    containerStyle={styles.shadow}
+                 containerStyle={styles.shadow}
                     data={data}
                     search
                     searchPlaceholder="Search"
+                    inputSearchStyle={{color:'#000', fontFamily:"Poppins-Bold"}}
                     labelField="label"
                     valueField="value"
+                    // color='#000000'
                     label="Dropdown"
-                    placeholder="Select item"
-                selectedTextStyle={{fontFamily:'Poppins-SemiBold', color:'#000'}}
+                    placeholder="Select your Speciality"
+                    placeholderStyle={{fontFamily:'Poppins-SemiBold', color:'#000000'}}
+                selectedTextStyle={{fontFamily:'Poppins-SemiBold', color:'#000000'}}
                     value={dropdown}
                     onChange={item => {
                     setDropdown(item.value);
@@ -70,6 +74,7 @@ import React, {useState} from 'react';
         dropdown: {
             backgroundColor: 'white',
             borderBottomColor: 'gray',
+            color:'#000000'
             // borderBottomWidth: 0.5,
             // marginTop: 5,
         },
@@ -88,10 +93,11 @@ import React, {useState} from 'react';
         textItem: {
             flex: 1,
             fontSize: 16,
-            fontFamily:'Poppins-SemiBold'
+            fontFamily:'Poppins-SemiBold',
+            color:'#000000'
         },
         shadow: {
-            shadowColor: '#000',
+            shadowColor: '#000000',
             shadowOffset: {
             width: 0,
             height: 1,

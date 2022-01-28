@@ -1,0 +1,192 @@
+import React, { Component } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TextInput, ActivityIndicator, FlatList} from 'react-native';
+import Header from '../Extras/Header';
+import { Feather } from '../Extras/AllIcons';
+import { BooksApi } from '../Extras/AllApis';
+
+const BooksArray = [];
+
+class Books extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+    };
+  }
+
+  componentDidMount(){
+    let HeaderName = this.props.route.params.Header;
+    this.setState({HeaderName})
+
+    this.getBooksAPI();
+  }
+
+  getBooksAPI(){
+      fetch(`${BooksApi}`, {
+          method:'GET',
+          headers:{
+          Accept:'application/json'
+        }})
+        .then((res)=>res.json())
+        .then((json)=>{
+            let {Code, Message, Data} = json;
+            // alert(JSON.stringify(Code))
+            if(Code == '00'){
+            Data.map((val)=> {
+            var object = {label: val.Name, value: val._id, imageCover:val.CoverImageURL, PdfURL:val.PdfURL}
+            BooksArray.push(object)
+        })
+            // setTimeout(() => {
+            //     alert(JSON.stringify(BooksArray[0].PdfURL))
+            // }, 2000);
+            }
+            else{
+                alert(Message)
+            }
+      })
+  }
+
+  render() {
+    return (
+      <SafeAreaView style={styles.Main}>
+          <Header
+            navigation={this.props.navigation}
+            Header={this.state.HeaderName}
+             />
+
+        <View style={styles.BooksHeaderView}>
+        <Text style={styles.BooksHeaderText}> Books </Text>
+        </View>
+             <View style={styles.SearchbardView}>
+                 <View style={styles.Searchicon}>
+                <Feather name='search' size={18} color="#B6BDC9" />
+                </View>
+                <View style={styles.searchbarText}>
+                 <TextInput style={styles.searchbarText} 
+                    placeholder='type here to Search'
+                    placeholderTextColor='#b3b4b5'
+                    onChangeText={(text)=> this.setState({SearchedBook:text})}
+                    />
+                </View>
+
+             </View>
+             
+                 <View style={styles.BooksCardView}>
+                    {/* <View style={{...StyleSheet.absoluteFillObject, backgroundColor:"transparent"}}/>
+                 <View style={{flex:1, borderBottomLeftRadius:240,borderBottomRightRadius:70, backgroundColor: "red"}}> */}
+                {/* {BooksArray != null? */}
+                <FlatList
+                  keyboardShouldPersistTaps={'always'}
+                  //  updateCellsBatchingPeriod={100}
+                       maxToRenderPerBatch={250}
+                       removeClippedSubviews={true}
+                       initialNumToRender={30}
+                       data={BooksArray}
+                       renderItem={({item, index}) =>
+                        (
+                <View key={index} style={styles.BooksCardItems}>
+                <Text>
+                    {item.label}
+                </Text>
+                 </View>
+                
+                )}
+                />
+
+              {/* :
+                <ActivityIndicator size={25} color="#000" />
+                }  */}
+                 </View>
+
+      </SafeAreaView>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+    Main:{
+        flex:1,
+        backgroundColor: "#fff",
+    },
+    BooksHeaderView:{
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        // backgroundColor: 'pink',
+        height:40,
+        marginLeft:20,
+        marginTop:20
+    },
+    BooksHeaderText:{
+        fontFamily:'andlso',
+        fontSize:30,
+        color:'#000'
+    },
+    SearchbardView:{
+        height:40,
+        width:'90%',
+        backgroundColor: '#edf2f4',
+        borderRadius:20,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        alignSelf:'center',
+        marginTop:15,
+        flexDirection:'row'
+    },
+    Searchicon:{
+        flex:1,
+        marginLeft:5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf:'center',
+        alignContent: 'center',
+        backgroundColor: 'transparent',
+        
+    },
+    searchbarText:{
+        flex:9,
+        backgroundColor: 'transparent',
+    },
+    BooksCardView:{
+        marginTop:10,
+    flexDirection:'row',
+    flexWrap:'wrap',
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // alignSelf: 'center',
+    // backgroundColor: "pink",
+    },
+    BooksItemsRatings:{
+    position:'absolute',
+    backgroundColor: "#fff",
+    borderRadius:20,
+    width:60,
+    height:25,
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    alignSelf: 'flex-end',
+    margin:5,
+    marginTop:10,
+    right:2,
+    // left:2
+    },
+    BooksCardItems:{
+        height:220,
+        width:150,
+    backgroundColor: '#fff',
+    borderRadius:15,
+    margin:10,
+//     shadowColor: "#000",
+// shadowOffset: {
+// 	width: 0,
+// 	height: 4,
+// },
+// shadowOpacity: 0.30,
+// shadowRadius: 4.65,
+
+// elevation: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // zIndex: 10,
+    }
+})
+
+export default Books;
